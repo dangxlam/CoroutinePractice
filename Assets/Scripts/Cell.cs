@@ -8,7 +8,9 @@ public class Cell : MonoBehaviour
     private GameObject cellSelected;
     
     private ECellColor cellColor;
-    
+    public BaseChessPieces CurrentPiece { get;  set; }
+
+    public Vector2Int CellLocation { get; set; }
 
     public ECellColor CellColor 
     { 
@@ -48,8 +50,10 @@ public class Cell : MonoBehaviour
                 case ECellState.SELECTED:
                     cellHover.SetActive(false);
                     cellSelected.SetActive(true);
+                    //CurrentPiece.BeSelected();
                     break;
                 case ECellState.MOVEABLE:
+                    cellSelected.SetActive(false);
                     cellHover.SetActive(true);
                     break;
                 default :
@@ -60,10 +64,15 @@ public class Cell : MonoBehaviour
         } 
     }
 
-    private void Start()
+    private void Awake()
     {
         cellHover = this.transform.GetChild(0).gameObject;
         cellSelected = this.transform.GetChild(1).gameObject;
+    }
+
+    private void Start()
+    {
+        
         CellState = ECellState.NORMAL;
     }
 
@@ -87,7 +96,48 @@ public class Cell : MonoBehaviour
 
     public void SetCellState(ECellState cellState)
     {
-        if(cellState != ECellState.SELECTED  )
+        switch (cellState)
+        {
+            case ECellState.NORMAL:
+                if (this.CellState != ECellState.SELECTED && this.CellState != ECellState.MOVEABLE)
+                {
+                    this.CellState = ECellState.NORMAL;
+                }
+                break;
+            case ECellState.POINTED:
+                if (this.CellState != ECellState.SELECTED && this.CellState != ECellState.MOVEABLE)
+                {
+                    this.CellState = cellState;
+                }
+                break;
+            case ECellState.SELECTED:
+                if(CurrentPiece != null)
+                {
+                    if (this.CellState == ECellState.SELECTED)
+                    {
+                        this.CellState = ECellState.NORMAL;
+                    }
+                    else
+                        this.CellState = cellState;
+                    
+                }
+                
+                break;
+            case ECellState.MOVEABLE:
+                if (this.CellState == ECellState.MOVEABLE)
+                {
+                    this.CellState = ECellState.NORMAL;
+                }
+                else
+                    this.CellState = cellState;
+                
+                break;
+            default:
+                
+                break;
+        }
+        /*
+        if (cellState != ECellState.SELECTED)
         {
             //if (cellState == ECellState.NORMAL)
             //    this.CellState = cellState;
@@ -98,17 +148,26 @@ public class Cell : MonoBehaviour
                 this.CellState = cellState;
             }
 
-        } else
+        }
+        else
         {
             if (this.CellState == ECellState.SELECTED)
                 this.CellState = ECellState.NORMAL;
-            else 
+            else if (CurrentPiece != null)
                 this.CellState = ECellState.SELECTED;
         }
-        
+
+        if (cellState == ECellState.MOVEABLE)
+        {
+            this.CellState = ECellState.MOVEABLE;
+        }
+        */
     }
 
-
+    public void SetChessPiece (BaseChessPieces chessPieces)
+    {
+        this.CurrentPiece = chessPieces;
+    }
 
 
 }

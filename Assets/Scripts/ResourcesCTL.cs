@@ -50,5 +50,17 @@ public class ResourcesCTL
 
     }
 
+    //Load game Object
+    private Dictionary<string, GameObject> _dict = new Dictionary<string, GameObject>();
+    public GameObject GetGameObject(string path)
+    {
+        if(_dict.ContainsKey(path) == false)
+        {
+            _dict.Add(path, Resources.Load<GameObject>(path));
+
+        }
+        return _dict[path];
+    }
+
    
 }
