@@ -59,7 +59,7 @@ public class CP_Pawn : BaseChessPieces
             if (Location.x > 0)
             {
                 Cell leftCellCheck = ChessBoard._instance.Cells[(int)Location.x - 1][(int)Location.y - 1];
-                if (leftCellCheck.CurrentPiece != null && leftCellCheck.CurrentPiece.Player == EPlayer.WHITE)
+                if (leftCellCheck.CurrentPiece != null && leftCellCheck.CurrentPiece.Player != Game_CTL.Current.CurrentPlayer)
                 {
                     moveableCells.Add(leftCellCheck);
 
@@ -70,7 +70,7 @@ public class CP_Pawn : BaseChessPieces
             if (Location.x < 7)
             {
                 Cell rightCellCheck = ChessBoard._instance.Cells[(int)Location.x + 1][(int)Location.y - 1];
-                if (rightCellCheck.CurrentPiece != null && rightCellCheck.CurrentPiece.Player == EPlayer.WHITE)
+                if (rightCellCheck.CurrentPiece != null && rightCellCheck.CurrentPiece.Player != Game_CTL.Current.CurrentPlayer)
                 {
                     moveableCells.Add(rightCellCheck);
 
@@ -88,42 +88,18 @@ public class CP_Pawn : BaseChessPieces
 
     
 
-    public override void Move(Cell nextCell)
+    public override void Move(Cell nextCell, bool goBack, bool evolve, Cell evolveCell)
     {
         isFirstMoved = false;
-        Location = nextCell.CellLocation;
-        BaseGame_CTL.Current.SwitchTurn();
+        
+        base.Move(nextCell, goBack, evolve, evolveCell);
 
     }
 
-    public  void UnSelectedNothing()
+    public override void RandomMove()
     {
-        foreach (var cell in moveableCells)
-        {
-            cell.SetCellState(ECellState.MOVEABLE);
-        }
+        BeSelected();
 
-        //if (isFirstMoved)
-        //{
-        //    //ChessBoard._instance.Cells[(int)Location.x][(int)Location.y - 1].SetCellState(ECellState.POINTED);
-        //    ChessBoard._instance.Cells[(int)Location.x][(int)Location.y - 2].SetCellState(ECellState.MOVEABLE);
-        //}
-
-
-        //ChessBoard._instance.Cells[(int)Location.x][(int)Location.y - 1].SetCellState(ECellState.MOVEABLE);
-
-
-        //if (Location.x > 0)
-        //{
-        //    ChessBoard._instance.Cells[(int)Location.x - 1][(int)Location.y - 1].SetCellState(ECellState.MOVEABLE);
-
-        //}
-
-        //if (Location.x < 7)
-        //{
-        //    ChessBoard._instance.Cells[(int)Location.x + 1][(int)Location.y - 1].SetCellState(ECellState.MOVEABLE);
-        //}
-
-
+        base.RandomMove();
     }
 }

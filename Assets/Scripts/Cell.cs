@@ -136,32 +136,7 @@ public class Cell : MonoBehaviour
                 
                 break;
         }
-        /*
-        if (cellState != ECellState.SELECTED)
-        {
-            //if (cellState == ECellState.NORMAL)
-            //    this.CellState = cellState;
-
-            //else
-            if (this.CellState != ECellState.SELECTED)
-            {
-                this.CellState = cellState;
-            }
-
-        }
-        else
-        {
-            if (this.CellState == ECellState.SELECTED)
-                this.CellState = ECellState.NORMAL;
-            else if (CurrentPiece != null)
-                this.CellState = ECellState.SELECTED;
-        }
-
-        if (cellState == ECellState.MOVEABLE)
-        {
-            this.CellState = ECellState.MOVEABLE;
-        }
-        */
+       
     }
 
     public void SetChessPiece (BaseChessPieces chessPieces)

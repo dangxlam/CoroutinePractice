@@ -10,14 +10,25 @@ public abstract class BaseChessPieces : MonoBehaviour
     private Vector3 offsetPosition;
     public CP_Infor Infor { get; private set; }
 
-    protected List<Cell> moveableCells = new List<Cell>();
+    public List<Cell> moveableCells = new List<Cell>();
 
-    public int Health { get;  set; }
+    private int health;
+    public int Health { 
+        get { return health; }
+        set 
+        {
+            health = value;
+            if (health < 1)
+            {
+                GameObject.Destroy(gameObject);
+            }
+        } 
+    }
 
     [SerializeField]
     protected EPlayer player;
-    
-    public EPlayer Player { 
+
+    public EPlayer Player {
         get
         {
             return player;
@@ -28,22 +39,22 @@ public abstract class BaseChessPieces : MonoBehaviour
         }
     }
 
-    private Vector2 originLocation;
+    private Vector2Int originLocation;
 
     [SerializeField]
     Vector2Int location;
 
-    public Vector2Int Location { 
+    public Vector2Int Location {
         get
         {
             return location;
-        } 
+        }
         set
         {
             location = value;
-            
-            Vector3 newPos = offsetPosition + new Vector3(location.x * ChessBoard._instance.CELL_SIZE, 0, location.y * ChessBoard._instance.CELL_SIZE);
-            this.transform.DOJump(newPos, 0.7f, 1, 0.5f);
+            //StartCoroutine(Move());
+            //Vector3 newPos = offsetPosition + new Vector3(location.x * ChessBoard._instance.CELL_SIZE, 0, location.y * ChessBoard._instance.CELL_SIZE);
+            //this.transform.DOJump(newPos, 0.7f, 1, 0.3f);
         }
     }
 
@@ -53,9 +64,113 @@ public abstract class BaseChessPieces : MonoBehaviour
         this.Infor = infor;
         this.transform.position = offsetPosition + new Vector3(infor.X * ChessBoard._instance.CELL_SIZE, 0, infor.Y * ChessBoard._instance.CELL_SIZE);
     }
-   
 
-    public abstract void Move(Cell nextCell);
+
+    public virtual void Move(Cell nextCell, bool goBack, bool evolve, Cell evolveCell)
+    {
+        //originLocation = Location;
+        ////Move
+        //Location = nextCell.CellLocation;
+        ////Switch Turn
+        //BaseGame_CTL.Current.SwitchTurn();
+
+        //UnSelected();
+
+        //if (goBack)
+        //{
+        //    Location = originLocation
+        //}
+        StartCoroutine(CoMove(nextCell, goBack, evolve, evolveCell));
+
+    }
+
+    public virtual void RandomMove()
+    {
+        
+        
+
+        bool isMoved = false;
+
+        foreach (Cell cell in moveableCells)
+        {
+            if(cell.CurrentPiece != null)
+            {
+                if (--cell.CurrentPiece.Health == 0)
+                {
+                    string deadPiece = cell.CurrentPiece.Infor.Name;
+                    ChessBoard._instance.listChessPieces.Remove(cell.CurrentPiece);
+                    //Move(cell, false);
+                    ChessBoard._instance.Cells[Location.x][Location.y].SetChessPiece(null);
+                    
+                    Move(cell, false, false, null);
+                    cell.SetChessPiece(this);
+                    Debug.Log("DEad: " + deadPiece);
+                    if (deadPiece.Equals("W_KING"))
+                        Game_CTL.Current.GameState = EGameState.GAME_OVER;
+
+
+                }
+                else
+                {
+                    Debug.Log("CHealth: " + (cell.CurrentPiece.Health));
+                    //cell.CurrentPiece.Health--;
+                    Move(cell, true, false,null);
+                }
+                isMoved = true;
+                break;
+            }
+        }
+
+        if(!isMoved)
+        {
+            System.Random rd = new System.Random();
+
+
+            Cell randomCell = moveableCells[rd.Next(0, moveableCells.Count)];
+            Debug.Log("Name: " + this.name);
+            if(this.name.Equals("B_Pawn(Clone)") && randomCell.CellLocation.y == 0)
+            {
+                Move(randomCell, false, true, randomCell);
+                //ChessBoard._instance.pawnToQueen(randomCell);
+                //this.Health = 0;
+            } else
+            {
+                ChessBoard._instance.Cells[Location.x][Location.y].SetChessPiece(null);
+                Move(randomCell, false,false,null);
+                randomCell.SetChessPiece(this);
+            }
+
+            
+        }
+        //UnSelected();
+        //if (randomCell.CurrentPiece == null )
+        //{
+        //    ChessBoard._instance.Cells[Location.x][Location.y].SetChessPiece(null);
+        //    Move(randomCell, false);
+        //    randomCell.SetChessPiece(this);
+        //} else
+        //{
+        //    if (--randomCell.CurrentPiece.Health == 0)
+        //    {
+        //        string deadPiece = randomCell.CurrentPiece.Infor.Name;
+        //        ChessBoard._instance.listChessPieces.Remove(randomCell.CurrentPiece);
+        //        Move(randomCell, false);
+        //        Debug.Log("DEad: " + deadPiece);
+        //        if (deadPiece.Equals("W_KING") || deadPiece.Equals("B_KING"))
+        //            Game_CTL.Current.GameState = EGameState.GAME_OVER;
+
+        //    }
+        //    else
+        //    {
+        //        randomCell.CurrentPiece.Health--;
+        //        Move(randomCell, true);
+        //    }
+            
+        //}
+
+        //this.UnSelected();
+    }
+
     public abstract void BeSelected();
 
     public void UnSelected()
@@ -65,5 +180,29 @@ public abstract class BaseChessPieces : MonoBehaviour
             cell.SetCellState(ECellState.MOVEABLE);
         }
         moveableCells.Clear();
+    }
+
+    IEnumerator CoMove(Cell nextCell, bool goBack, bool evolve, Cell evolveCell)
+    {
+        Vector3 oldPos = offsetPosition + new Vector3(location.x * ChessBoard._instance.CELL_SIZE, 0, location.y * ChessBoard._instance.CELL_SIZE);
+        originLocation = Location;
+        Location = nextCell.CellLocation;
+        Vector3 newPos = offsetPosition + new Vector3(location.x * ChessBoard._instance.CELL_SIZE, 0, location.y * ChessBoard._instance.CELL_SIZE);
+        this.transform.DOJump(newPos, 0.7f, 1, 0.3f);
+        //Game_CTL.Current.SwitchTurn();
+        UnSelected();
+        yield return new WaitForSeconds(0.3f);
+        if (goBack) 
+        {
+            Location = originLocation;
+            this.transform.DOJump(oldPos, 0.7f, 1, 0.3f);
+        }
+        yield return new WaitForSeconds(0.5f);
+        if (evolve)
+        {
+            ChessBoard._instance.pawnToQueen(evolveCell);
+            this.Health = 0;
+        }
+        Game_CTL.Current.SwitchTurn();
     }
 }
