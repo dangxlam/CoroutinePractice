@@ -98,7 +98,7 @@ public class CP_Pawn : BaseChessPieces
 
     public override void RandomMove()
     {
-        BeSelected();
+        //BeSelected();
 
         base.RandomMove();
     }

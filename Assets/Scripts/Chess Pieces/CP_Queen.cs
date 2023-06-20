@@ -209,7 +209,7 @@ public class CP_Queen : BaseChessPieces
 
     public override void RandomMove()
     {
-        BeSelected();
+        //BeSelected();
 
         base.RandomMove();
     }

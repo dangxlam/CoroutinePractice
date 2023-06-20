@@ -91,7 +91,7 @@ public class CP_Rook : BaseChessPieces
 
     public override void RandomMove()
     {
-        BeSelected();
+        //BeSelected();
         
         base.RandomMove();
     }

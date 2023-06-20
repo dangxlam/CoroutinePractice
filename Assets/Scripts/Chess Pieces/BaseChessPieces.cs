@@ -25,6 +25,15 @@ public abstract class BaseChessPieces : MonoBehaviour
         } 
     }
 
+    private bool isMove = false;
+    public bool IsMoved { 
+        get
+        {
+            return isMove;
+        } 
+        set { isMove = value; }
+    }
+
     [SerializeField]
     protected EPlayer player;
 
@@ -89,7 +98,7 @@ public abstract class BaseChessPieces : MonoBehaviour
         
         
 
-        bool isMoved = false;
+        bool isAttack = false;
 
         foreach (Cell cell in moveableCells)
         {
@@ -112,22 +121,22 @@ public abstract class BaseChessPieces : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("CHealth: " + (cell.CurrentPiece.Health));
+                    Debug.Log("My Health: " + (cell.CurrentPiece.Health));
                     //cell.CurrentPiece.Health--;
                     Move(cell, true, false,null);
                 }
-                isMoved = true;
+                isAttack = true;
                 break;
             }
         }
 
-        if(!isMoved)
+        if(!isAttack)
         {
             System.Random rd = new System.Random();
 
 
             Cell randomCell = moveableCells[rd.Next(0, moveableCells.Count)];
-            Debug.Log("Name: " + this.name);
+            //Debug.Log("Name: " + this.name);
             if(this.name.Equals("B_Pawn(Clone)") && randomCell.CellLocation.y == 0)
             {
                 Move(randomCell, false, true, randomCell);
@@ -135,8 +144,9 @@ public abstract class BaseChessPieces : MonoBehaviour
                 //this.Health = 0;
             } else
             {
-                ChessBoard._instance.Cells[Location.x][Location.y].SetChessPiece(null);
+                
                 Move(randomCell, false,false,null);
+                ChessBoard._instance.Cells[Location.x][Location.y].SetChessPiece(null);
                 randomCell.SetChessPiece(this);
             }
 
@@ -175,22 +185,25 @@ public abstract class BaseChessPieces : MonoBehaviour
 
     public void UnSelected()
     {
+        //Debug.Log("unselected");
         foreach (var cell in moveableCells)
         {
             cell.SetCellState(ECellState.MOVEABLE);
+            //Debug.Log("bo 1 2 3");
         }
         moveableCells.Clear();
     }
 
     IEnumerator CoMove(Cell nextCell, bool goBack, bool evolve, Cell evolveCell)
     {
+        UnSelected();
         Vector3 oldPos = offsetPosition + new Vector3(location.x * ChessBoard._instance.CELL_SIZE, 0, location.y * ChessBoard._instance.CELL_SIZE);
         originLocation = Location;
         Location = nextCell.CellLocation;
         Vector3 newPos = offsetPosition + new Vector3(location.x * ChessBoard._instance.CELL_SIZE, 0, location.y * ChessBoard._instance.CELL_SIZE);
         this.transform.DOJump(newPos, 0.7f, 1, 0.3f);
         //Game_CTL.Current.SwitchTurn();
-        UnSelected();
+        
         yield return new WaitForSeconds(0.3f);
         if (goBack) 
         {
@@ -203,6 +216,6 @@ public abstract class BaseChessPieces : MonoBehaviour
             ChessBoard._instance.pawnToQueen(evolveCell);
             this.Health = 0;
         }
-        Game_CTL.Current.SwitchTurn();
+        //Game_CTL.Current.SwitchTurn();
     }
 }

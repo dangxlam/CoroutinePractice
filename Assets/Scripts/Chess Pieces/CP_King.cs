@@ -84,7 +84,7 @@ public class CP_King : BaseChessPieces
 
     public override void RandomMove()
     {
-        BeSelected();
+        //BeSelected();
 
         base.RandomMove();
     }

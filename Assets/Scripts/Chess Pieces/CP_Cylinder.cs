@@ -108,7 +108,7 @@ public class CP_Cylinder : BaseChessPieces
 
     public override void RandomMove()
     {
-        BeSelected();
+        //BeSelected();
 
         base.RandomMove();
     }

@@ -108,7 +108,7 @@ public class ChessBoard : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            if (currentPointedCell != null)
+            if (currentPointedCell != null && Game_CTL.Current.CurrentPlayer == EPlayer.WHITE)
             {
                 //Check if can move
                 if(currentPointedCell.CellState == ECellState.MOVEABLE)
@@ -118,7 +118,7 @@ public class ChessBoard : MonoBehaviour
                     if (currentPointedCell.CurrentPiece != null)
                     {
                         
-                        Debug.Log("CHealth: " + currentPointedCell.CurrentPiece.Health);
+                        Debug.Log(currentPointedCell.CurrentPiece.Infor.Name + " Health: " + (currentPointedCell.CurrentPiece.Health - 1));
                         currentSelectedCell.CurrentPiece.Move(currentPointedCell, currentPointedCell.CurrentPiece.Health > 1, false, null);
                         
                         //currentSelectedCell.CurrentPiece.Move(currentSelectedCell);
@@ -132,12 +132,14 @@ public class ChessBoard : MonoBehaviour
                             cells[currentPointedCell.CellLocation.x][currentPointedCell.CellLocation.y].SetChessPiece(currentSelectedCell.CurrentPiece);
                             currentSelectedCell.SetCellState(ECellState.SELECTED);
                             cells[currentSelectedCell.CellLocation.x][currentSelectedCell.CellLocation.y].SetChessPiece(null);
+
                             
                             if (listChessPieces.Count == 1)
                                 Game_CTL.Current.GameState = EGameState.GAME_OVER;
                         } else
                             currentSelectedCell.SetCellState(ECellState.SELECTED);
-                        
+
+                        //currentSelectedCell.CurrentPiece.UnSelected();
                         currentSelectedCell = null;
 
 
@@ -154,21 +156,22 @@ public class ChessBoard : MonoBehaviour
                         //if(attack)
                         // BaseGame_CTL.Current.SwitchTurn();
 
-
+                        //currentSelectedCell.CurrentPiece.UnSelected();
                         cells[currentPointedCell.CellLocation.x][currentPointedCell.CellLocation.y].SetChessPiece(currentSelectedCell.CurrentPiece);
                         cells[currentSelectedCell.CellLocation.x][currentSelectedCell.CellLocation.y].SetChessPiece(null);
                         currentSelectedCell = null;
                     }
-                    
 
-                    
+                    Game_CTL.Current.SwitchTurn();
+
 
 
 
                 } else
                 {
+                    
                     //select a cell not MOVEABLE
-                    if (currentSelectedCell != null || currentSelectedCell == currentPointedCell)
+                    if (currentSelectedCell != null  || currentSelectedCell == currentPointedCell)
                     {
                         currentSelectedCell.SetCellState(ECellState.SELECTED);
                         currentSelectedCell.CurrentPiece.UnSelected();
@@ -176,7 +179,7 @@ public class ChessBoard : MonoBehaviour
 
                     }
                     
-                    if (currentSelectedCell != currentPointedCell && currentPointedCell.CurrentPiece!= null && currentPointedCell.CurrentPiece.Player == Game_CTL.Current.CurrentPlayer)
+                    if (currentSelectedCell != currentPointedCell && currentPointedCell.CurrentPiece!= null && currentPointedCell.CurrentPiece.Player == EPlayer.WHITE)
                     {
                         //if (currentPointedCell.CurrentPiece != null)
                         //{
@@ -198,7 +201,7 @@ public class ChessBoard : MonoBehaviour
                 
         }
 
-        if (currentSelectedCell != null)
+        if (currentSelectedCell != null && currentSelectedCell.CurrentPiece.Player ==  EPlayer.WHITE)
         {
             if (Input.GetKeyDown(KeyCode.A))
             {
@@ -275,7 +278,9 @@ public class ChessBoard : MonoBehaviour
         if (currentTargetCell.CurrentPiece != null)
         {
 
-            Debug.Log("CHealth: " + (currentTargetCell.CurrentPiece.Health - 1));
+            //Debug.Log("CHealth: " + (currentTargetCell.CurrentPiece.Health - 1));
+            //currentSelectedCell.CurrentPiece.UnSelected();
+            Debug.Log(currentTargetCell.CurrentPiece.Infor.Name + " Health: " + (currentTargetCell.CurrentPiece.Health - 1));
             currentSelectedCell.CurrentPiece.Move(currentTargetCell, currentTargetCell.CurrentPiece.Health > 1, false, null);
 
             //currentSelectedCell.CurrentPiece.Move(currentSelectedCell);
@@ -319,6 +324,7 @@ public class ChessBoard : MonoBehaviour
             currentSelectedCell = null;
             currentTargetCell = null;
         }
+        Game_CTL.Current.SwitchTurn();
     }
 
     public void InitChessBoard()

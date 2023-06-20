@@ -42,6 +42,7 @@ public class Game_CTL : MonoBehaviour
     public void SwitchTurn ()
     {
         CurrentPlayer = CurrentPlayer == EPlayer.WHITE? EPlayer.BLACK : EPlayer.WHITE;
+        Debug.Log("Current turn: " +  CurrentPlayer);
 
         
         if(CurrentPlayer == EPlayer.BLACK && GameState == EGameState.PLAYING)
@@ -49,20 +50,21 @@ public class Game_CTL : MonoBehaviour
             //ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)].RandomMove();
 
 
-            int d = 0;
-            BaseChessPieces rdChess = ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)];
-            rdChess.BeSelected();
+            StartCoroutine(RandomBlackMove());
+
+
+            /*
             while (rdChess.moveableCells.Count < 1)
             {
                 rdChess.UnSelected();
                 rdChess = ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)];
                 rdChess.BeSelected();
-                if (d++ > 100)
+                if (d++ > ChessBoard._instance.listChessPieces.Count - 2) ;
                     break;
             }
 
             StartCoroutine(RandomBlackMove(rdChess));
-            rdChess.UnSelected();
+            rdChess.UnSelected();*/
         }
         else if (CurrentPlayer == EPlayer.WHITE && GameState == EGameState.PLAYING)
         {
@@ -89,17 +91,67 @@ public class Game_CTL : MonoBehaviour
         Debug.Log("Winner: " + winner);
     }
 
-    IEnumerator RandomBlackMove(BaseChessPieces chessPieces)
+    IEnumerator RandomBlackMove()
     {
         //System.Random rd = new System.Random();
         yield return new WaitForSeconds(1f);
+        // yield return null;
         //BaseChessPieces rdChess = ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)];
         //while (rdChess.moveableCells.Count <1)
         //{
         //    rdChess = ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)];
         //}
         //ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)].RandomMove();
-        chessPieces.RandomMove();
+        //chessPieces.RandomMove();
         //chessPieces.UnSelected();
+        int d = 1;
+        int chek = 0;
+        // BaseChessPieces rdChess = ChessBoard._instance.listChessPieces[rd.Next(1, ChessBoard._instance.listChessPieces.Count)];
+        //rdChess.BeSelected();
+        //ChessBoard._instance.listChessPieces.Count
+        while (d < ChessBoard._instance.listChessPieces.Count)
+        {
+            
+            foreach (BaseChessPieces chess in ChessBoard._instance.listChessPieces)
+            {
+                //Debug.Log("reest");
+                if (chess == ChessBoard._instance.listChessPieces[0])
+                    continue;
+                chess.BeSelected();
+                if (!chess.IsMoved && chess.moveableCells.Count > 0)
+                {
+                    //StartCoroutine(RandomBlackMove(chess));
+                    chess.RandomMove();
+                    
+                    chess.IsMoved = true;
+                    
+                    d++;
+                    yield return new WaitForSeconds(0.7f);
+
+                    Debug.Log("Co chay ko + D = " + d  + " chek  = " + chek + " " + ChessBoard._instance.listChessPieces.Count);
+
+                   
+                }
+                //chess.UnSelected();
+                 //chess.BeSelected();
+
+               
+            }
+
+            chek++;
+            if (chek > 200)
+                break;
+        }
+
+        foreach (BaseChessPieces chess in ChessBoard._instance.listChessPieces)
+        {
+            if (chess == ChessBoard._instance.listChessPieces[0])
+                continue;
+
+            chess.IsMoved = false;
+
+        }
+
+        SwitchTurn();
     }
 }
